@@ -1,5 +1,5 @@
 # Node-Red
-![DIAGRAMA](.../img/Node-red.png)
+![DIAGRAMA](img/Node-red.png)
 
 # Sistema de Telemetría Animal — Documentación Técnica
 

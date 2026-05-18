@@ -114,7 +114,7 @@ Diseñar e implementar un sistema de monitoreo telemétrico basado en el IoT (Ve
 
 ## Esquema de Funcionamiento
 
-![ESQUEMA](img/LoRa.png)
+![ESQUEMA](Código/img/LoRa.png)
 
 **Formato del payload LoRa:**
 ```
