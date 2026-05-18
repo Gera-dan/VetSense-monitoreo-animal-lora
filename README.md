@@ -204,6 +204,7 @@ T:36.5|A:24.1|S:25.3|H:60.0|B:72|P:145
 | [Codigo/Transmisor.ino](Código/Transmisor.ion) | Transmisor | Lectura de sensores, cálculo BPM con AD8232, envío LoRa + BLE |
 | [Codigo/Receptor.ino](Código/Reseptor.ion) | Receptor | Recepción LoRa, display OLED, reenvío ESP-NOW al gateway |
 | [Codigo/Lilygo.ino](Código/Lilygo.ion) | Gateway | Resive los datos y los manda por un broker privado a Hive MQTT |
+| [Node.md](Código/Node.md) | Node-red, influxdb y java  | Resive los datos y los manda por un broker privado a Hive MQTT |
 
 
 ## Explicación de configuraciones de sensores y tarjetas
