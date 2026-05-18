@@ -84,3 +84,106 @@ return [
 
 > **Nota sobre el manejo de errores:** Los sensores de temperatura DS18B20 devuelven `-127` cuando ocurre un fallo de lectura o desconexión. El nodo detecta este valor y lo reemplaza por `0` para evitar que datos corruptos lleguen al dashboard.
 
+### 3. Normalización para Persistencia — Nodo `function` (InfluxDB)
+
+Antes de escribir en la base de datos de series de tiempo, este nodo actúa como una **capa de saneamiento y normalización**. Su responsabilidad es garantizar que el dato llegue a InfluxDB en un formato numérico limpio, independientemente del estado o formato en que venga el mensaje MQTT.
+
+#### ¿Por qué es necesario?
+
+Los mensajes MQTT pueden llegar en distintos estados según el dispositivo o la red:
+
+| Escenario | Ejemplo de entrada | Acción del nodo |
+|---|---|---|
+| JSON válido como objeto | `{ "Frecuencia_Cardiaca": 72 }` | Parseo directo |
+| JSON válido pero como string | `"{ \"Frecuencia_Cardiaca\": 72 }"` | Elimina comillas y parsea |
+| Formato delimitado por pipes | `\|Frecuencia_Cardiaca:72\|Humedad:65` | Parseo manual clave:valor |
+
+#### Lógica del nodo en detalle
+
+**Paso 1 — Detección y limpieza del formato de entrada:** si el payload llega como `string`, se eliminan las comillas externas y se intenta parsearlo como JSON. Si el parseo falla (formato pipe), se recorre manualmente dividiendo por `|` y luego por `:` para reconstruir el objeto.
+
+**Paso 2 — Construcción del objeto de salida:** todas las variables se convierten explícitamente a `Number` con fallback a `0` si el valor es nulo, indefinido o no numérico. Las claves se renombran a `snake_case` para cumplir con las convenciones de InfluxDB.
+
+#### Campos escritos en InfluxDB
+
+| Campo | Tipo | Origen |
+|---|---|---|
+| `frecuencia_cardiaca` | float | `raw.Frecuencia_Cardiaca` |
+| `temperatura_sujeto` | float | `raw.Temperatura_Sujeto` |
+| `temperatura_ambiente` | float | `raw.Temperatura_Ambiente` |
+| `sensacion_termica` | float | `raw.Sensacion_Termica` |
+| `humedad` | float | `raw.Humedad` |
+| `paquete` | float | `raw.Paquete` |
+
+#### Código de la Función
+
+### 3. Normalización para Persistencia — Nodo `function` (InfluxDB)
+
+Antes de escribir en la base de datos de series de tiempo, este nodo actúa como una **capa de saneamiento y normalización**. Su responsabilidad es garantizar que el dato llegue a InfluxDB en un formato numérico limpio, independientemente del estado o formato en que venga el mensaje MQTT.
+
+#### ¿Por qué es necesario?
+
+Los mensajes MQTT pueden llegar en distintos estados según el dispositivo o la red:
+
+| Escenario | Ejemplo de entrada | Acción del nodo |
+|---|---|---|
+| JSON válido como objeto | `{ "Frecuencia_Cardiaca": 72 }` | Parseo directo |
+| JSON válido pero como string | `"{ \"Frecuencia_Cardiaca\": 72 }"` | Elimina comillas y parsea |
+| Formato delimitado por pipes | `\|Frecuencia_Cardiaca:72\|Humedad:65` | Parseo manual clave:valor |
+
+#### Lógica del nodo en detalle
+
+**Paso 1 — Detección y limpieza del formato de entrada:** si el payload llega como `string`, se eliminan las comillas externas y se intenta parsearlo como JSON. Si el parseo falla (formato pipe), se recorre manualmente dividiendo por `|` y luego por `:` para reconstruir el objeto.
+
+**Paso 2 — Construcción del objeto de salida:** todas las variables se convierten explícitamente a `Number` con fallback a `0` si el valor es nulo, indefinido o no numérico. Las claves se renombran a `snake_case` para cumplir con las convenciones de InfluxDB.
+
+#### Campos escritos en InfluxDB
+
+| Campo | Tipo | Origen |
+|---|---|---|
+| `frecuencia_cardiaca` | float | `raw.Frecuencia_Cardiaca` |
+| `temperatura_sujeto` | float | `raw.Temperatura_Sujeto` |
+| `temperatura_ambiente` | float | `raw.Temperatura_Ambiente` |
+| `sensacion_termica` | float | `raw.Sensacion_Termica` |
+| `humedad` | float | `raw.Humedad` |
+| `paquete` | float | `raw.Paquete` |
+
+#### Código de la Función
+
+```javascript
+let raw = msg.payload;
+
+// 1. Normalización del formato de entrada
+if (typeof raw === "string") {
+    raw = raw.trim().replace(/^"|"$/g, ""); // elimina comillas externas
+    try {
+        raw = JSON.parse(raw);              // intenta parseo JSON estándar
+    } catch(e) {
+        // fallback: parseo manual para formato pipe (|clave:valor)
+        let partes = raw.split("|");
+        let datos = {};
+        for (let i = 1; i < partes.length; i++) {
+            let par = partes[i].split(":");
+            if (par.length === 2) {
+                datos[par[0]] = par[1];
+            }
+        }
+        raw = datos;
+    }
+}
+
+// 2. Construcción del payload normalizado para InfluxDB
+msg.payload = {
+    frecuencia_cardiaca:  Number(raw.Frecuencia_Cardiaca)  || 0,
+    temperatura_sujeto:   Number(raw.Temperatura_Sujeto)   || 0,
+    temperatura_ambiente: Number(raw.Temperatura_Ambiente) || 0,
+    sensacion_termica:    Number(raw.Sensacion_Termica)    || 0,
+    humedad:              Number(raw.Humedad)              || 0,
+    paquete:              Number(raw.Paquete)              || 0
+};
+
+return msg;
+` ` `
+
+> **Nota:** El uso de `Number(...) || 0` garantiza que valores como `null`, `undefined`, `NaN` o strings vacíos sean reemplazados por `0`, evitando errores de escritura en la serie de tiempo de InfluxDB.
+```

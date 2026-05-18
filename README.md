@@ -1,10 +1,10 @@
 # Sistema de Monitoreo Inalámbrico para Animales de Granja
 ### Post-Fractura y Post-Quirúrgico mediante LoRa + ESP-NOW + MQTT
 
-Gerardo Daniel Olivares Álvarez (230110052)
-Diego Antonio Badillo Morales (230110025)
-Ricardo López Cruz (230110088)
-Daniel Aldana López (230110150)
+- Gerardo Daniel Olivares Álvarez (230110052)
+- Diego Antonio Badillo Morales (230110025)
+- Ricardo López Cruz (230110088)
+- Daniel Aldana López (230110150)
 
 
 ## Introducción
@@ -110,6 +110,64 @@ Diseñar e implementar un sistema de monitoreo telemétrico basado en el IoT (Ve
 | **UUID Servicio BLE** | `12345678-1234-1234-1234-123456789abc` |
 | **Nombre BLE** | `NodoMedico_01` |
  
+
+
+---
+### Comunicación I²C
+| Dispositivo | Dirección | SDA | SCL |
+|---|---|---|---|
+| OLED SSD1306 | `0x3C` | GPIO 17 | GPIO 18 |
+
+### Comunicación SPI (LoRa SX1262)
+| Señal | GPIO |
+|---|---|
+| NSS (CS) | 8 |
+| DIO1 | 14 |
+| NRST | 12 |
+| BUSY | 13 |
+| SCK | 9 |
+| MISO | 11 |
+| MOSI | 10 |
+
+### Sensores digitales (1-Wire / DHT11)
+| Sensor | Protocolo | GPIO |
+|---|---|---|
+| DS18B20 (temperatura sujeto) | 1-Wire | 3 |
+| DHT11 — humedad | DHT | 34 |
+| DHT11 — temperatura ambiente | DHT | 1 |
+
+### Sensor ECG (AD8232)
+| Señal | GPIO | Modo |
+|---|---|---|
+| OUT (señal analógica) | 6 | `INPUT` / `analogRead` |
+| LO+ (leads-off detección) | 5 | `INPUT` digital |
+| LO− (leads-off detección) | 7 | `INPUT` digital |
+
+---
+
+![DIRECCIONES](Código/img/DIRECCIONES.png)
+
+---
+
+### Control de energía y pantalla
+| Función | GPIO | Estado activo |
+|---|---|---|
+| VEXT (alimentación periféricos) | 36 | `LOW` = encendido |
+| RST OLED | 21 | `LOW` → `HIGH` = reset |
+
+### Comunicación inalámbrica
+| Tecnología | Parámetro | Valor |
+|---|---|---|
+| LoRa | Frecuencia | 433.0 MHz |
+| LoRa | Spreading Factor | 12 |
+| LoRa | Bandwidth | 62.5 kHz |
+| LoRa | Coding Rate | 8 |
+| LoRa | Potencia | 22 dBm |
+| LoRa | Sync Word | `0xAB` |
+| BLE | Service UUID | `12345678-1234-1234-1234-123456789abc` |
+| BLE | Char. configuración | `...ab1` — WRITE |
+| BLE | Char. estado/notify | `...ab2` — NOTIFY |Sonnet 4.6
+
 ---
 
 ## Esquema de Funcionamiento
