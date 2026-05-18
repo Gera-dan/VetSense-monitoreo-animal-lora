@@ -1,6 +1,11 @@
 # Sistema de Monitoreo Inalámbrico para Animales de Granja
 ### Post-Fractura y Post-Quirúrgico mediante LoRa + ESP-NOW + MQTT
 
+Gerardo Daniel Olivares Álvarez (230110052)
+Diego Antonio Badillo Morales (230110025)
+Ricardo López Cruz (230110088)
+Daniel Aldana López (230110150)
+
 
 ## Introducción
 Este proyecto implementa un sistema de monitoreo inalámbrico orientado al cuidado post-operatorio y post-fractura de animales de granja, principalmente bovinos (vacas) y ovinos (borregos). El sistema mide en tiempo real parámetros fisiológicos críticos para garantizar la recuperación adecuada del animal y detectar complicaciones de forma temprana.
@@ -109,7 +114,7 @@ Diseñar e implementar un sistema de monitoreo telemétrico basado en el IoT (Ve
 
 ## Esquema de Funcionamiento
 
-![ESQUEMA](img/Entre%20paredes%20500m%20-%201k.png)
+![ESQUEMA](img/LoRa.png)
 
 **Formato del payload LoRa:**
 ```
